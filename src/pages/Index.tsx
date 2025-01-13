@@ -3,8 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 const Index = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
   const { data: registros, isLoading } = useQuery({
     queryKey: ["registros"],
     queryFn: async () => {
@@ -18,8 +22,16 @@ const Index = () => {
     },
   });
 
+  // Get unique categories
+  const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
+
+  // Filter records by category
+  const filteredRegistros = selectedCategory
+    ? registros?.filter(registro => registro.categoria === selectedCategory)
+    : registros;
+
   // Calculate total value
-  const total = registros?.reduce((acc, registro) => {
+  const total = filteredRegistros?.reduce((acc, registro) => {
     if (registro.valor) {
       return acc + (registro.tipo === "expense" ? -registro.valor : registro.valor);
     }
@@ -40,14 +52,34 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="p-4">
+      <main className="p-4 mb-24">
+        {/* Category Filter */}
+        <div className="mb-4">
+          <Select
+            value={selectedCategory || ""}
+            onValueChange={(value) => setSelectedCategory(value === "" ? null : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filtrar por categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todas as categorias</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {isLoading ? (
           <div className="flex justify-center items-center min-h-[200px]">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4ADE80]"></div>
           </div>
         ) : (
           <div className="space-y-4">
-            {registros?.map((registro) => (
+            {filteredRegistros?.map((registro) => (
               <Card key={registro.id} className="w-full animate-fade-in">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
