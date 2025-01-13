@@ -69,24 +69,6 @@ const Index = () => {
           </div>
         )}
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
-        <div className="flex justify-between items-center max-w-md mx-auto">
-          <button className="flex flex-col items-center text-[#4ADE80]">
-            <Wallet className="w-6 h-6" />
-            <span className="text-xs mt-1">Registros</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400">
-            <Car className="w-6 h-6" />
-            <span className="text-xs mt-1">Categorias</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-400">
-            <User className="w-6 h-6" />
-            <span className="text-xs mt-1">Perfil</span>
-          </button>
-        </div>
-      </nav>
     </div>
   );
 };

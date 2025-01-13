@@ -42,42 +42,6 @@ export type Database = {
         }
         Relationships: []
       }
-      transactions: {
-        Row: {
-          categoria: Database["public"]["Enums"]["transaction_category"]
-          created_at: string
-          data: string
-          id: string
-          observacao: string | null
-          tipo: Database["public"]["Enums"]["transaction_type"]
-          titulo: string
-          user_id: string | null
-          valor: number
-        }
-        Insert: {
-          categoria: Database["public"]["Enums"]["transaction_category"]
-          created_at?: string
-          data: string
-          id?: string
-          observacao?: string | null
-          tipo: Database["public"]["Enums"]["transaction_type"]
-          titulo: string
-          user_id?: string | null
-          valor: number
-        }
-        Update: {
-          categoria?: Database["public"]["Enums"]["transaction_category"]
-          created_at?: string
-          data?: string
-          id?: string
-          observacao?: string | null
-          tipo?: Database["public"]["Enums"]["transaction_type"]
-          titulo?: string
-          user_id?: string | null
-          valor?: number
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
