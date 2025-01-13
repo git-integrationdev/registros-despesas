@@ -56,14 +56,14 @@ const Index = () => {
         {/* Category Filter */}
         <div className="mb-4">
           <Select
-            value={selectedCategory || ""}
-            onValueChange={(value) => setSelectedCategory(value === "" ? null : value)}
+            value={selectedCategory || "all"}
+            onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filtrar por categoria" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as categorias</SelectItem>
+              <SelectItem value="all">Todas as categorias</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
