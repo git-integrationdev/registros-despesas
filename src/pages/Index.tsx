@@ -112,9 +112,6 @@ const Index = () => {
                     )}
                     <span>{registro.data ? format(new Date(registro.data), "dd/MM/yyyy") : "Sem data"}</span>
                   </div>
-                  {registro.observacao && (
-                    <p className="mt-2 text-sm text-gray-600">{registro.observacao}</p>
-                  )}
                 </CardContent>
               </Card>
             ))}
