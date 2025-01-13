@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Wallet, Car, User } from "lucide-react";
+import { Bell } from "lucide-react";
 import { format } from "date-fns";
 
 const Index = () => {
@@ -17,6 +17,14 @@ const Index = () => {
       return data;
     },
   });
+
+  // Calculate total value
+  const total = registros?.reduce((acc, registro) => {
+    if (registro.valor) {
+      return acc + (registro.tipo === "expense" ? -registro.valor : registro.valor);
+    }
+    return acc;
+  }, 0) || 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,6 +77,16 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Fixed Footer with Total */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-lg">
+        <div className="flex justify-between items-center max-w-md mx-auto">
+          <span className="text-gray-600 font-medium">Total:</span>
+          <span className={`text-xl font-bold ${total >= 0 ? 'text-[#4ADE80]' : 'text-red-500'}`}>
+            R$ {Math.abs(total).toFixed(2)}
+          </span>
+        </div>
+      </footer>
     </div>
   );
 };
