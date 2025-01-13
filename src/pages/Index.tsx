@@ -5,6 +5,7 @@ import { Bell } from "lucide-react";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { Tag } from "@/components/ui/tag";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -37,6 +38,13 @@ const Index = () => {
     }
     return acc;
   }, 0) || 0;
+
+  // Function to get a consistent color variant for each category
+  const getCategoryVariant = (category: string) => {
+    const variants = ["blue", "pink", "green", "purple", "cyan"] as const;
+    const index = Math.abs(category.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0));
+    return variants[index % variants.length];
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -97,7 +105,11 @@ const Index = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between text-sm text-gray-500">
-                    <span>{registro.categoria}</span>
+                    {registro.categoria && (
+                      <Tag variant={getCategoryVariant(registro.categoria)}>
+                        {registro.categoria}
+                      </Tag>
+                    )}
                     <span>{registro.data ? format(new Date(registro.data), "dd/MM/yyyy") : "Sem data"}</span>
                   </div>
                   {registro.observacao && (
