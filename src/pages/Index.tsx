@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell } from "lucide-react";
 import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
@@ -78,12 +77,9 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="px-4 py-6 bg-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold">Olá 👋</h1>
-            <p className="text-gray-500">Seus registros financeiros</p>
-          </div>
-          <Bell className="w-6 h-6 text-gray-500" />
+        <div>
+          <h1 className="text-2xl font-semibold">Olá 👋</h1>
+          <p className="text-gray-500">Seus registros financeiros</p>
         </div>
       </header>
 
