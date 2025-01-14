@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
-import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval } from "date-fns";
+import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
@@ -31,7 +31,7 @@ const Index = () => {
   const filterByDate = (registro: any) => {
     if (!selectedDateFilter || !registro.data) return true;
 
-    const recordDate = new Date(registro.data);
+    const recordDate = parseISO(registro.data);
     const today = startOfDay(new Date());
     const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Week starts on Monday
     const monthStart = startOfMonth(today);
@@ -155,7 +155,9 @@ const Index = () => {
                         {registro.categoria}
                       </Tag>
                     )}
-                    <span>{registro.data ? format(new Date(registro.data), "dd/MM/yyyy") : "Sem data"}</span>
+                    <span>
+                      {registro.data ? format(parseISO(registro.data), "dd/MM/yyyy") : "Sem data"}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
