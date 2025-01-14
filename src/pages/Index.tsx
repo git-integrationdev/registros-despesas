@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 
@@ -106,20 +107,25 @@ const Index = () => {
           </Select>
 
           {/* Date Filter */}
-          <Select
-            value={selectedDateFilter || "all"}
-            onValueChange={(value) => setSelectedDateFilter(value === "all" ? null : value)}
+          <ToggleGroup
+            type="single"
+            value={selectedDateFilter || ""}
+            onValueChange={(value) => setSelectedDateFilter(value)}
+            className="justify-start w-full"
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Filtrar por período" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os períodos</SelectItem>
-              <SelectItem value="today">Hoje</SelectItem>
-              <SelectItem value="week">Esta semana</SelectItem>
-              <SelectItem value="month">Este mês</SelectItem>
-            </SelectContent>
-          </Select>
+            <ToggleGroupItem value="" className="flex-1">
+              Todos
+            </ToggleGroupItem>
+            <ToggleGroupItem value="today" className="flex-1">
+              Hoje
+            </ToggleGroupItem>
+            <ToggleGroupItem value="week" className="flex-1">
+              Semana
+            </ToggleGroupItem>
+            <ToggleGroupItem value="month" className="flex-1">
+              Mês
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
 
         {isLoading ? (
