@@ -2,13 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
 
   const { data: registros, isLoading } = useQuery({
     queryKey: ["registros"],
@@ -26,10 +27,37 @@ const Index = () => {
   // Get unique categories
   const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
 
-  // Filter records by category
-  const filteredRegistros = selectedCategory
-    ? registros?.filter(registro => registro.categoria === selectedCategory)
-    : registros;
+  // Filter records by date
+  const filterByDate = (registro: any) => {
+    if (!selectedDateFilter || !registro.data) return true;
+
+    const recordDate = new Date(registro.data);
+    const today = startOfDay(new Date());
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Week starts on Monday
+    const monthStart = startOfMonth(today);
+
+    switch (selectedDateFilter) {
+      case "today":
+        return format(recordDate, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
+      case "week":
+        return isWithinInterval(recordDate, {
+          start: weekStart,
+          end: new Date()
+        });
+      case "month":
+        return isWithinInterval(recordDate, {
+          start: monthStart,
+          end: new Date()
+        });
+      default:
+        return true;
+    }
+  };
+
+  // Filter records by category and date
+  const filteredRegistros = registros?.filter(registro => 
+    (!selectedCategory || registro.categoria === selectedCategory) && filterByDate(registro)
+  );
 
   // Calculate total value
   const total = filteredRegistros?.reduce((acc, registro) => {
@@ -61,8 +89,9 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="p-4 mb-24">
-        {/* Category Filter */}
-        <div className="mb-4">
+        {/* Filters */}
+        <div className="space-y-4">
+          {/* Category Filter */}
           <Select
             value={selectedCategory || "all"}
             onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}
@@ -79,6 +108,22 @@ const Index = () => {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Date Filter */}
+          <Select
+            value={selectedDateFilter || "all"}
+            onValueChange={(value) => setSelectedDateFilter(value === "all" ? null : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filtrar por período" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os períodos</SelectItem>
+              <SelectItem value="today">Hoje</SelectItem>
+              <SelectItem value="week">Esta semana</SelectItem>
+              <SelectItem value="month">Este mês</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {isLoading ? (
@@ -86,7 +131,7 @@ const Index = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4ADE80]"></div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 mt-4">
             {filteredRegistros?.map((registro) => (
               <Card key={registro.id} className="w-full animate-fade-in">
                 <CardHeader className="pb-2">
