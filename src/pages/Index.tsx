@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
@@ -6,10 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: registros, isLoading } = useQuery({
     queryKey: ["registros"],
@@ -23,6 +27,24 @@ const Index = () => {
       return data;
     },
   });
+
+  const handleDelete = async (id: number) => {
+    try {
+      const { error } = await supabase
+        .from("registros")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ["registros"] });
+      toast.success("Registro deletado com sucesso");
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      toast.error("Erro ao deletar registro");
+    }
+  };
 
   // Get unique categories
   const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
@@ -151,16 +173,28 @@ const Index = () => {
               <Card key={registro.id} className="w-full animate-fade-in">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-medium">
-                      {registro.titulo || "Sem título"}
-                    </CardTitle>
-                    <span
-                      className={`text-lg font-semibold ${
-                        registro.tipo === "expense" ? "text-red-500" : "text-[#4ADE80]"
-                      }`}
-                    >
-                      {registro.tipo === "expense" ? "-" : "+"}R$ {registro.valor?.toFixed(2)}
-                    </span>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg font-medium">
+                        {registro.titulo || "Sem título"}
+                      </CardTitle>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span
+                        className={`text-lg font-semibold ${
+                          registro.tipo === "expense" ? "text-red-500" : "text-[#4ADE80]"
+                        }`}
+                      >
+                        {registro.tipo === "expense" ? "-" : "+"}R$ {registro.valor?.toFixed(2)}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-500 hover:text-red-500"
+                        onClick={() => handleDelete(registro.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
