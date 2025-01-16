@@ -12,6 +12,7 @@ export type Database = {
       registros: {
         Row: {
           categoria: string | null
+          celular: number | null
           created_at: string
           data: string | null
           id: number
@@ -22,6 +23,7 @@ export type Database = {
         }
         Insert: {
           categoria?: string | null
+          celular?: number | null
           created_at?: string
           data?: string | null
           id?: number
@@ -32,6 +34,7 @@ export type Database = {
         }
         Update: {
           categoria?: string | null
+          celular?: number | null
           created_at?: string
           data?: string | null
           id?: number

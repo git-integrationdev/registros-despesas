@@ -67,6 +67,19 @@ const Index = () => {
     return acc;
   }, 0) || 0;
 
+  // Function to get phone label
+  const getPhoneLabel = (phone: number | null) => {
+    if (!phone) return null;
+    switch (phone) {
+      case 5511984119222:
+        return "Tani";
+      case 5511911407528:
+        return "Flá";
+      default:
+        return phone.toString();
+    }
+  };
+
   // Function to get a consistent color variant for each category
   const getCategoryVariant = (category: string) => {
     const variants = ["blue", "pink", "green", "purple", "cyan"] as const;
@@ -151,12 +164,19 @@ const Index = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between text-sm text-gray-500">
-                    {registro.categoria && (
-                      <Tag variant={getCategoryVariant(registro.categoria)}>
-                        {registro.categoria}
-                      </Tag>
-                    )}
+                  <div className="flex justify-between items-center text-sm text-gray-500">
+                    <div className="flex gap-2 flex-wrap">
+                      {registro.categoria && (
+                        <Tag variant={getCategoryVariant(registro.categoria)}>
+                          {registro.categoria}
+                        </Tag>
+                      )}
+                      {registro.celular && (
+                        <Tag variant="cyan">
+                          {getPhoneLabel(registro.celular)}
+                        </Tag>
+                      )}
+                    </div>
                     <span>
                       {registro.data ? format(parseISO(registro.data), "dd/MM/yyyy") : "Sem data"}
                     </span>
