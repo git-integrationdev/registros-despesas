@@ -13,6 +13,7 @@ import { toast } from "sonner";
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
+  const [selectedPhoneFilter, setSelectedPhoneFilter] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: registros, isLoading } = useQuery({
@@ -49,13 +50,19 @@ const Index = () => {
   // Get unique categories
   const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
 
+  // Phone filter options
+  const phoneOptions = [
+    { label: "Tani", value: "5511984119222" },
+    { label: "Flá", value: "5511911407528" }
+  ];
+
   // Filter records by date
   const filterByDate = (registro: any) => {
     if (!selectedDateFilter || !registro.data) return true;
 
     const recordDate = parseISO(registro.data);
     const today = startOfDay(new Date());
-    const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Week starts on Monday
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
     const monthStart = startOfMonth(today);
 
     switch (selectedDateFilter) {
@@ -76,9 +83,11 @@ const Index = () => {
     }
   };
 
-  // Filter records by category and date
+  // Filter records by category, date, and phone
   const filteredRegistros = registros?.filter(registro => 
-    (!selectedCategory || registro.categoria === selectedCategory) && filterByDate(registro)
+    (!selectedCategory || registro.categoria === selectedCategory) && 
+    filterByDate(registro) &&
+    (!selectedPhoneFilter || registro.celular?.toString() === selectedPhoneFilter)
   );
 
   // Calculate total value
@@ -136,6 +145,24 @@ const Index = () => {
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Phone Filter */}
+          <Select
+            value={selectedPhoneFilter || "all"}
+            onValueChange={(value) => setSelectedPhoneFilter(value === "all" ? null : value)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filtrar por pessoa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as pessoas</SelectItem>
+              {phoneOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
