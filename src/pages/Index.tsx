@@ -149,21 +149,22 @@ const Index = () => {
           </Select>
 
           {/* Phone Filter */}
-          <ToggleGroup
-            type="single"
-            value={selectedPhoneFilter || ""}
-            onValueChange={(value) => setSelectedPhoneFilter(value)}
-            className="justify-start w-full"
+          <Select
+            value={selectedPhoneFilter || "all"}
+            onValueChange={(value) => setSelectedPhoneFilter(value === "all" ? null : value)}
           >
-            <ToggleGroupItem value="" className="flex-1">
-              Todos
-            </ToggleGroupItem>
-            {phoneOptions.map((option) => (
-              <ToggleGroupItem key={option.value} value={option.value} className="flex-1">
-                {option.label}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Filtrar por pessoa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as pessoas</SelectItem>
+              {phoneOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Date Filter */}
           <ToggleGroup
