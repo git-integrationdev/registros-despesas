@@ -38,7 +38,6 @@ const Index = () => {
 
       if (error) throw error;
 
-      // Invalidate and refetch
       await queryClient.invalidateQueries({ queryKey: ["registros"] });
       toast.success("Registro deletado com sucesso");
     } catch (error) {
@@ -211,7 +210,7 @@ const Index = () => {
                           registro.tipo === "expense" ? "text-red-500" : "text-[#4ADE80]"
                         }`}
                       >
-                        {registro.tipo === "expense" ? "-" : "+"}R$ {registro.valor?.toFixed(2)}
+                        {registro.tipo === "expense" ? "-R$ " : "+R$ "}{registro.valor?.toFixed(2)}
                       </span>
                       <Button
                         variant="ghost"
@@ -254,7 +253,7 @@ const Index = () => {
         <div className="flex justify-between items-center max-w-md mx-auto">
           <span className="text-gray-600 font-medium">Total:</span>
           <span className={`text-xl font-bold ${total >= 0 ? 'text-[#4ADE80]' : 'text-red-500'}`}>
-            R$ {Math.abs(total).toFixed(2)}
+            {total >= 0 ? '+' : '-'}R$ {Math.abs(total).toFixed(2)}
           </span>
         </div>
       </footer>
