@@ -129,7 +129,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="p-4 mb-24">
-        {/* Filters */}
         <div className="space-y-4">
           {/* Category Filter */}
           <Select
@@ -205,12 +204,8 @@ const Index = () => {
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span
-                        className={`text-lg font-semibold ${
-                          registro.tipo === "expense" ? "text-red-500" : "text-[#4ADE80]"
-                        }`}
-                      >
-                        {registro.tipo === "expense" ? "-R$ " : "+R$ "}{registro.valor?.toFixed(2)}
+                      <span className="text-lg font-semibold text-red-500">
+                        -R$ {registro.valor?.toFixed(2)}
                       </span>
                       <Button
                         variant="ghost"
@@ -252,8 +247,8 @@ const Index = () => {
       <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-lg">
         <div className="flex justify-between items-center max-w-md mx-auto">
           <span className="text-gray-600 font-medium">Total:</span>
-          <span className={`text-xl font-bold ${total >= 0 ? 'text-[#4ADE80]' : 'text-red-500'}`}>
-            {total >= 0 ? '+' : '-'}R$ {Math.abs(total).toFixed(2)}
+          <span className="text-xl font-bold text-red-500">
+            -R$ {Math.abs(total).toFixed(2)}
           </span>
         </div>
       </footer>
