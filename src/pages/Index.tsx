@@ -2,18 +2,20 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { EditRecordDialog } from "@/components/EditRecordDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [selectedPhoneFilter, setSelectedPhoneFilter] = useState<string | null>(null);
+  const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const queryClient = useQueryClient();
 
   const { data: registros, isLoading } = useQuery({
@@ -48,12 +50,6 @@ const Index = () => {
 
   // Get unique categories
   const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
-
-  // Phone filter options
-  const phoneOptions = [
-    { label: "Tani", value: "5511984119222" },
-    { label: "Flá", value: "5511911407528" }
-  ];
 
   // Filter records by date
   const filterByDate = (registro: any) => {
@@ -149,22 +145,22 @@ const Index = () => {
           </Select>
 
           {/* Phone Filter */}
-          <Select
-            value={selectedPhoneFilter || "all"}
-            onValueChange={(value) => setSelectedPhoneFilter(value === "all" ? null : value)}
+          <ToggleGroup
+            type="single"
+            value={selectedPhoneFilter || ""}
+            onValueChange={(value) => setSelectedPhoneFilter(value)}
+            className="justify-start w-full"
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Filtrar por pessoa" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as pessoas</SelectItem>
-              {phoneOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <ToggleGroupItem value="" className="flex-1">
+              Todas
+            </ToggleGroupItem>
+            <ToggleGroupItem value="5511984119222" className="flex-1">
+              Tani
+            </ToggleGroupItem>
+            <ToggleGroupItem value="5511911407528" className="flex-1">
+              Flá
+            </ToggleGroupItem>
+          </ToggleGroup>
 
           {/* Date Filter */}
           <ToggleGroup
@@ -207,14 +203,24 @@ const Index = () => {
                       <span className="text-lg font-semibold text-red-500">
                         -R$ {registro.valor?.toFixed(2)}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-gray-500 hover:text-red-500"
-                        onClick={() => handleDelete(registro.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-500 hover:text-blue-500"
+                          onClick={() => setEditingRecord(registro)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-500 hover:text-red-500"
+                          onClick={() => handleDelete(registro.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
@@ -252,6 +258,17 @@ const Index = () => {
           </span>
         </div>
       </footer>
+
+      {/* Edit Record Dialog */}
+      {editingRecord && (
+        <EditRecordDialog
+          open={!!editingRecord}
+          onOpenChange={(open) => !open && setEditingRecord(null)}
+          record={editingRecord}
+          categories={categories}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["registros"] })}
+        />
+      )}
     </div>
   );
 };
