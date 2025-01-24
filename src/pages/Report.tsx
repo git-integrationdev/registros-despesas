@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
@@ -58,19 +59,6 @@ const Report = () => {
     if (!registros) return [];
     return [...new Set(registros.map(r => r.categoria).filter(Boolean))];
   }, [registros]);
-
-  // Function to get phone label
-  const getPhoneLabel = (phone: number | null) => {
-    if (!phone) return null;
-    switch (phone) {
-      case 5511984119222:
-        return "Tani";
-      case 5511911407528:
-        return "Flá";
-      default:
-        return phone.toString();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
