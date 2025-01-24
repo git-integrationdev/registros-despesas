@@ -6,12 +6,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, BarChart2 } from "lucide-react";
 import { toast } from "sonner";
 import { EditRecordDialog } from "@/components/EditRecordDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [selectedPhoneFilter, setSelectedPhoneFilter] = useState<string | null>(null);
@@ -117,9 +119,19 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="px-4 py-6 bg-white">
-        <div>
-          <h1 className="text-2xl font-semibold">Olá 👋</h1>
-          <p className="text-gray-500">Seus registros financeiros</p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-semibold">Olá 👋</h1>
+            <p className="text-gray-500">Seus registros financeiros</p>
+          </div>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate("/report")}
+          >
+            <BarChart2 className="h-4 w-4" />
+            Relatório
+          </Button>
         </div>
       </header>
 
