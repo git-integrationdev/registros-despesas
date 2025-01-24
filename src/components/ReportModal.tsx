@@ -32,17 +32,52 @@ export const ReportModal = ({ open, onOpenChange }: ReportModalProps) => {
     const existingDay = acc.find(item => item.date === date);
 
     if (existingDay) {
+      if (registro.celular === 5511984119222) {
+        existingDay.tani = (existingDay.tani || 0) + registro.valor;
+      } else if (registro.celular === 5511911407528) {
+        existingDay.fla = (existingDay.fla || 0) + registro.valor;
+      }
       existingDay.total += registro.valor;
     } else {
-      acc.push({ date, total: registro.valor });
+      const newDay = { 
+        date, 
+        total: registro.valor,
+        tani: registro.celular === 5511984119222 ? registro.valor : 0,
+        fla: registro.celular === 5511911407528 ? registro.valor : 0
+      };
+      acc.push(newDay);
     }
 
     return acc;
   }, []) || [];
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <p className="font-medium mb-2">Data: {label}</p>
+        {data.tani > 0 && (
+          <p className="text-sm text-gray-600">
+            Tani: R$ {data.tani.toFixed(2)}
+          </p>
+        )}
+        {data.fla > 0 && (
+          <p className="text-sm text-gray-600">
+            Flá: R$ {data.fla.toFixed(2)}
+          </p>
+        )}
+        <p className="text-sm font-medium text-gray-800 mt-2">
+          Total: R$ {data.total.toFixed(2)}
+        </p>
+      </div>
+    );
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Relatório de Gastos Diários</DialogTitle>
         </DialogHeader>
@@ -54,14 +89,26 @@ export const ReportModal = ({ open, onOpenChange }: ReportModalProps) => {
         ) : (
           <div className="h-[400px] w-full mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <BarChart 
+                data={chartData}
+                margin={{ 
+                  top: 5, 
+                  right: 5, 
+                  left: 5, 
+                  bottom: 5 
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip 
-                  formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Total"]}
-                  labelFormatter={(label) => `Data: ${label}`}
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
                 />
+                <YAxis 
+                  tick={{ fontSize: 12 }}
+                  width={60}
+                />
+                <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="total" fill="#4ADE80" />
               </BarChart>
             </ResponsiveContainer>
