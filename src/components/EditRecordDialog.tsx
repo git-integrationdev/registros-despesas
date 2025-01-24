@@ -31,7 +31,7 @@ const formSchema = z.object({
   valor: z.string().transform((val) => Number(val.replace(/[^\d.,]/g, ""))),
   data: z.date(),
   categoria: z.string(),
-  celular: z.string(),
+  celular: z.string().transform((val) => Number(val)),
 });
 
 type EditRecordDialogProps = {
@@ -67,10 +67,10 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
         .from("registros")
         .update({
           titulo: values.titulo,
-          valor: Number(values.valor),
+          valor: values.valor,
           data: format(values.data, "yyyy-MM-dd"),
           categoria: values.categoria,
-          celular: Number(values.celular),
+          celular: values.celular,
         })
         .eq("id", record.id);
 
@@ -224,4 +224,4 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
       </DialogContent>
     </Dialog>
   );
-}
+});
