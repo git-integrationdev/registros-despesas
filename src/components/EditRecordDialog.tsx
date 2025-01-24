@@ -224,4 +224,4 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
       </DialogContent>
     </Dialog>
   );
-});
+}
