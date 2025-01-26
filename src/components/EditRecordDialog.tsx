@@ -31,7 +31,7 @@ const formSchema = z.object({
   valor: z.string().transform((val) => Number(val.replace(/[^\d.,]/g, ""))),
   data: z.date(),
   categoria: z.string(),
-  celular: z.string().transform((val) => Number(val)),
+  celular: z.number(),
 });
 
 type EditRecordDialogProps = {
@@ -57,7 +57,7 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
       valor: record.valor?.toString() || "",
       data: record.data ? parseISO(record.data) : new Date(),
       categoria: record.categoria || categories[0],
-      celular: record.celular?.toString() || "5511984119222",
+      celular: record.celular || 5511984119222,
     },
   });
 
@@ -200,8 +200,8 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
                   <FormControl>
                     <ToggleGroup
                       type="single"
-                      value={field.value}
-                      onValueChange={field.onChange}
+                      value={field.value.toString()}
+                      onValueChange={(value) => field.onChange(Number(value))}
                       className="justify-start"
                     >
                       <ToggleGroupItem value="5511984119222" className="flex-1">

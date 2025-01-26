@@ -26,7 +26,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from("registros")
         .select("*")
-        .order('data', { ascending: false });
+        .order("data", { ascending: false });
 
       if (error) throw error;
       return data;
