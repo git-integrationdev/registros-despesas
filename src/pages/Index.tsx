@@ -6,18 +6,16 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, BarChart2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EditRecordDialog } from "@/components/EditRecordDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ReportModal } from "@/components/ReportModal";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [selectedPhoneFilter, setSelectedPhoneFilter] = useState<string | null>(null);
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
-  const [isReportOpen, setIsReportOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: registros, isLoading } = useQuery({
@@ -26,7 +24,7 @@ const Index = () => {
       const { data, error } = await supabase
         .from("registros")
         .select("*")
-        .order('data', { ascending: false });
+        .order("data", { ascending: false });
 
       if (error) throw error;
       return data;
@@ -119,19 +117,9 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="px-4 py-6 bg-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-semibold">Olá 👋</h1>
-            <p className="text-gray-500">Seus registros financeiros</p>
-          </div>
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => setIsReportOpen(true)}
-          >
-            <BarChart2 className="h-4 w-4" />
-            Relatório
-          </Button>
+        <div>
+          <h1 className="text-2xl font-semibold">Olá 👋</h1>
+          <p className="text-gray-500">Seus registros financeiros</p>
         </div>
       </header>
 
@@ -281,12 +269,6 @@ const Index = () => {
           onSuccess={() => queryClient.invalidateQueries({ queryKey: ["registros"] })}
         />
       )}
-
-      {/* Report Modal */}
-      <ReportModal 
-        open={isReportOpen} 
-        onOpenChange={setIsReportOpen} 
-      />
     </div>
   );
 };

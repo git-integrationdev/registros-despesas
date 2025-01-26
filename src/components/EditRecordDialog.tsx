@@ -200,7 +200,7 @@ export function EditRecordDialog({ open, onOpenChange, record, categories, onSuc
                   <FormControl>
                     <ToggleGroup
                       type="single"
-                      value={field.value.toString()}
+                      value={field.value}
                       onValueChange={field.onChange}
                       className="justify-start"
                     >
