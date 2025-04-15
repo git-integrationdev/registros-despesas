@@ -1,226 +1,140 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format, parseISO } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
+import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Button } from "./ui/button";
+import { useToast } from "../hooks/use-toast";
 
-const formSchema = z.object({
-  titulo: z.string().optional(),
-  valor: z.string().transform((val) => Number(val.replace(/[^\d.,]/g, ""))),
-  data: z.date(),
-  categoria: z.string(),
-  celular: z.number(),
-});
-
-type EditRecordDialogProps = {
+interface EditRecordDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   record: {
     id: number;
-    titulo?: string | null;
-    valor?: number | null;
-    data?: string | null;
-    categoria?: string | null;
-    celular?: number | null;
+    titulo: string;
+    categoria: string;
+    valor: number;
+    tipo: string;
+    data: string;
+    celular: number;
+    observacao: string;
   };
-  categories: string[];
-  onSuccess: () => void;
-};
+  onSave: (editedRecord: any) => void;
+}
 
-export function EditRecordDialog({ open, onOpenChange, record, categories, onSuccess }: EditRecordDialogProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      titulo: record.titulo || "",
-      valor: record.valor?.toString() || "",
-      data: record.data ? parseISO(record.data) : new Date(),
-      categoria: record.categoria || categories[0],
-      celular: record.celular || 5511984119222,
-    },
-  });
+export function EditRecordDialog({ open, onOpenChange, record, onSave }: EditRecordDialogProps) {
+  const { toast } = useToast();
+  const [editedRecord, setEditedRecord] = React.useState(record);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      const { error } = await supabase
-        .from("registros")
-        .update({
-          titulo: values.titulo,
-          valor: values.valor,
-          data: format(values.data, "yyyy-MM-dd"),
-          categoria: values.categoria,
-          celular: values.celular,
-        })
-        .eq("id", record.id);
+  const handleInputChange = (field: string, value: string | number) => {
+    setEditedRecord((prev) => ({
+      ...prev,
+      [field]: field === "valor" || field === "celular" ? Number(value) : value,
+    }));
+  };
 
-      if (error) throw error;
-
-      toast.success("Registro atualizado com sucesso");
-      onSuccess();
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error updating record:", error);
-      toast.error("Erro ao atualizar registro");
+  const handleSave = () => {
+    if (!editedRecord.titulo || !editedRecord.valor || !editedRecord.data) {
+      toast({
+        variant: "destructive",
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+      });
+      return;
     }
+
+    onSave(editedRecord);
+    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar Registro</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="titulo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Título" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="titulo">Título</Label>
+            <Input
+              type="text"
+              id="titulo"
+              value={editedRecord.titulo}
+              onChange={(e) => handleInputChange("titulo", e.target.value)}
             />
-
-            <FormField
-              control={form.control}
-              name="valor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Valor"
-                      {...field}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/[^\d.,]/g, "");
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="categoria">Categoria</Label>
+            <Select onValueChange={(value) => handleInputChange("categoria", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder={editedRecord.categoria} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Alimentação">Alimentação</SelectItem>
+                <SelectItem value="Transporte">Transporte</SelectItem>
+                <SelectItem value="Lazer">Lazer</SelectItem>
+                <SelectItem value="Moradia">Moradia</SelectItem>
+                <SelectItem value="Saúde">Saúde</SelectItem>
+                <SelectItem value="Educação">Educação</SelectItem>
+                <SelectItem value="Outros">Outros</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="valor">Valor</Label>
+            <Input
+              type="number"
+              id="valor"
+              value={editedRecord.valor}
+              onChange={(e) => handleInputChange("valor", e.target.value)}
             />
-
-            <FormField
-              control={form.control}
-              name="data"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormItem>
-              )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="tipo">Tipo</Label>
+            <Select onValueChange={(value) => handleInputChange("tipo", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder={record.tipo} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Entrada">Entrada</SelectItem>
+                <SelectItem value="Saída">Saída</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="data">Data</Label>
+            <Input
+              type="date"
+              id="data"
+              value={editedRecord.data}
+              onChange={(e) => handleInputChange("data", e.target.value)}
             />
-
-            <FormField
-              control={form.control}
-              name="categoria"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="celular">Celular</Label>
+            <Input
+              type="number"
+              id="celular"
+              value={editedRecord.celular}
+              onChange={(e) => handleInputChange("celular", e.target.value)}
             />
-
-            <FormField
-              control={form.control}
-              name="celular"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel>Pessoa</FormLabel>
-                  <FormControl>
-                    <ToggleGroup
-                      type="single"
-                      value={field.value.toString()}
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      className="justify-start"
-                    >
-                      <ToggleGroupItem value="5511984119222" className="flex-1">
-                        Tani
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="5511911407528" className="flex-1">
-                        Flá
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </FormControl>
-                </FormItem>
-              )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="observacao">Observação</Label>
+            <Input
+              type="text"
+              id="observacao"
+              value={editedRecord.observacao}
+              onChange={(e) => handleInputChange("observacao", e.target.value)}
             />
-
-            <Button type="submit" className="w-full">
-              Salvar alterações
-            </Button>
-          </form>
-        </Form>
+          </div>
+        </div>
+        <div className="flex justify-end gap-4">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSave}>Salvar</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
