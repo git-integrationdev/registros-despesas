@@ -53,7 +53,6 @@ const Index = () => {
 
   const categories = [...new Set(registros?.map(registro => registro.categoria).filter(Boolean))];
 
-  // Filter records by date
   const filterByDate = (registro: any) => {
     if (!selectedDateFilter || !registro.data) return true;
 
@@ -80,14 +79,12 @@ const Index = () => {
     }
   };
 
-  // Filter records by category, date, and phone
   const filteredRegistros = registros?.filter(registro => 
     (!selectedCategory || registro.categoria === selectedCategory) && 
     filterByDate(registro) &&
     (!selectedPhoneFilter || registro.celular?.toString() === selectedPhoneFilter)
   );
 
-  // Calculate total value
   const total = filteredRegistros?.reduce((acc, registro) => {
     if (registro.valor) {
       return acc + (registro.tipo === "expense" ? -registro.valor : registro.valor);
@@ -107,7 +104,6 @@ const Index = () => {
     }
   };
 
-  // Function to get a consistent color variant for each category
   const getCategoryVariant = (category: string) => {
     const variants = ["blue", "pink", "green", "purple", "cyan"] as const;
     const index = Math.abs(category.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0));
@@ -120,7 +116,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="px-4 py-6 bg-white">
         <div className="flex justify-between items-center">
           <div>
@@ -152,10 +147,8 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="p-4 mb-24">
         <div className="space-y-4">
-          {/* Category Filter */}
           <Select
             value={selectedCategory || "all"}
             onValueChange={(value) => setSelectedCategory(value === "all" ? null : value)}
@@ -173,7 +166,6 @@ const Index = () => {
             </SelectContent>
           </Select>
 
-          {/* Phone Filter */}
           <ToggleGroup
             type="single"
             value={selectedPhoneFilter || ""}
@@ -191,7 +183,6 @@ const Index = () => {
             </ToggleGroupItem>
           </ToggleGroup>
 
-          {/* Date Filter */}
           <ToggleGroup
             type="single"
             value={selectedDateFilter || ""}
@@ -278,7 +269,6 @@ const Index = () => {
         )}
       </main>
 
-      {/* Fixed Footer with Total */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-lg">
         <div className="flex justify-between items-center max-w-md mx-auto">
           <span className="text-gray-600 font-medium">Total:</span>
@@ -288,18 +278,30 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Edit Record Dialog */}
       {editingRecord && (
         <EditRecordDialog
           open={!!editingRecord}
           onOpenChange={(open) => !open && setEditingRecord(null)}
           record={editingRecord}
-          categories={categories}
-          onSuccess={() => queryClient.invalidateQueries({ queryKey: ["registros"] })}
+          onSave={async (editedRecord) => {
+            try {
+              const { error } = await supabase
+                .from("registros")
+                .update(editedRecord)
+                .eq("id", editedRecord.id);
+
+              if (error) throw error;
+
+              await queryClient.invalidateQueries({ queryKey: ["registros"] });
+              toast.success("Registro atualizado com sucesso");
+            } catch (error) {
+              console.error("Error updating record:", error);
+              toast.error("Erro ao atualizar registro");
+            }
+          }}
         />
       )}
 
-      {/* Report Modal */}
       <ReportModal open={isReportOpen} onOpenChange={setIsReportOpen} />
     </div>
   );

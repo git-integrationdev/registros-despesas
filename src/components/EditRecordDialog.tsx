@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
@@ -65,9 +66,9 @@ export function EditRecordDialog({ open, onOpenChange, record, onSave }: EditRec
           </div>
           <div className="grid gap-2">
             <Label htmlFor="categoria">Categoria</Label>
-            <Select onValueChange={(value) => handleInputChange("categoria", value)}>
+            <Select value={editedRecord.categoria} onValueChange={(value) => handleInputChange("categoria", value)}>
               <SelectTrigger>
-                <SelectValue placeholder={editedRecord.categoria} />
+                <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Alimentação">Alimentação</SelectItem>
@@ -91,9 +92,9 @@ export function EditRecordDialog({ open, onOpenChange, record, onSave }: EditRec
           </div>
           <div className="grid gap-2">
             <Label htmlFor="tipo">Tipo</Label>
-            <Select onValueChange={(value) => handleInputChange("tipo", value)}>
+            <Select value={editedRecord.tipo} onValueChange={(value) => handleInputChange("tipo", value)}>
               <SelectTrigger>
-                <SelectValue placeholder={record.tipo} />
+                <SelectValue placeholder="Selecione um tipo" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Entrada">Entrada</SelectItem>
