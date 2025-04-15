@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, startOfDay, startOfWeek, startOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
 import { Edit2, Trash2, BarChart2, ArrowDown, ArrowUp, LogOut } from "lucide-react";
@@ -12,6 +12,7 @@ import { EditRecordDialog } from "@/components/EditRecordDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ReportModal } from "@/components/ReportModal";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -22,6 +23,13 @@ const Index = () => {
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
 
   const { data: registros, isLoading } = useQuery({
     queryKey: ["registros", sortOrder],
@@ -126,6 +134,14 @@ const Index = () => {
       toast.error("Erro ao fazer logout");
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4ADE80]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
