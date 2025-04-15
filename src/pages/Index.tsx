@@ -6,11 +6,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useState } from "react";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, BarChart2, ArrowDown, ArrowUp } from "lucide-react";
+import { Edit2, Trash2, BarChart2, ArrowDown, ArrowUp, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { EditRecordDialog } from "@/components/EditRecordDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ReportModal } from "@/components/ReportModal";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -20,6 +21,7 @@ const Index = () => {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: registros, isLoading } = useQuery({
     queryKey: ["registros", sortOrder],
@@ -114,6 +116,17 @@ const Index = () => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   };
 
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast.error("Erro ao fazer logout");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="px-4 py-6 bg-white">
@@ -142,6 +155,14 @@ const Index = () => {
             >
               <BarChart2 className="h-4 w-4" />
               Relatório
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
             </Button>
           </div>
         </div>
